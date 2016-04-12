@@ -51,24 +51,57 @@ class FG_Window(QMainWindow):
 
 		self.parser = FG_Parser(self.csv_dir)
 
-		
 		self.init_ui()
 
 	def init_ui(self):
 		self.setWindowTitle('FG App')
+		self.parser.get_ids_web()
 		grid = QGridLayout()
 
 		r = grid.rowCount()
 
-		self.parser.get_ids_web()
+		self.p_label = QLabel('Pitcher CSV: Not Found', self)
+		self.b_label = QLabel('Batter CSV: Not Found', self)
+		self.look_for_csv()
+
+		grid.addWidget(self.p_label, 0, 0)
+		grid.addWidget(self.b_label, 0, 1)
+
+		self.type_select = QComboBox(self)
+		self.player_select = QComboBox(self)
+		self.stat_select = QComboBox(self)
+
+		grid.addWidget(self.type_select, 2, 0)
+		grid.addWidget(self.player_select, 3, 0)
+		grid.addWidget(self.stat_select, 4, 0)
+
+		per_game_button = QPushButton('Per Game Graph', self)
+		cum_sum_button = QPushButton('Cumulative Sum Graph', self)
+
+		per_game_button.connect(per_game_button, SIGNAL('clicked()'), self.make_per_game)
+		cum_sum_button.connect(cum_sum_button, SIGNAL('clicked()'), self.make_cum_sum)
+
+
+		grid.addWidget(per_game_button, 4, 1)
+		grid.addWidget(cum_sum_button, 4, 2)
 
 		self.mainWidget = QWidget(self)
 		self.mainWidget.setLayout(grid)
 		self.setCentralWidget(self.mainWidget)
+
 		self.resize(*self.dim)
 		self.center()
+
+		self.pop_players()
+		self.pop_stats()
+
 		self.log('Opening')
+		
 		self.show()
+
+	def closeEvent(self, event):
+		self.log('Closing')
+		event.accept()
 
 	def center(self):
 		qr = self.frameGeometry()
@@ -105,8 +138,49 @@ class FG_Window(QMainWindow):
 				self.log('Problem cleaning: {}'.format(d))
 			else:
 				self.log('Directory not found: {}'.format(d))
-		
+		self.look_for_csv()
 
+	def clean_logs(self):
+		for file in os.listdir():
+			if file.endswith('.log'):
+				file_path = os.path.join(os.getcwd(), file)
+				os.unlink(file_path)
+
+	def look_for_csv(self):
+		pitcher_csv = self.parser.pitcher_csv
+		batter_csv = self.parser.batter_csv
+		if pitcher_csv in os.listdir(self.csv_dir):
+			self.p_label.setText('Pitcher CSV: Found')
+		else:
+			self.p_label.setText('Pitcher CSV: Not Found')
+		if batter_csv in os.listdir(self.csv_dir):
+			self.b_label.setText('Batter CSV: Found')
+		else:
+			self.p_label.setText('Batter CSV: Not Found')
+
+	def pop_players(self):
+		pass
+
+	def pop_stats(self, player=None):
+		if player:
+			p_type = self.parser.get_player_type(player) 
+
+	def make_per_game(self):
+		name = self.sender().text()
+		file_name = self.parser.get_game_logs(name)
+		p_tup = self.parser.get_id_name_tup(name)
+		p = FG_Plotter(file_name,p_tup, 'wOBA',self.graph_dir)
+		p.per_game()
+
+	def make_cum_sum(self):
+		name = self.sender().text()
+		file_name = self.parser.get_game_logs(name)
+		p_tup = self.parser.get_id_name_tup(name)
+		p = FG_Plotter(file_name,p_tup, 'wOBA',self.graph_dir)
+		p.cum_sum()
+				
+
+		
 def main():
 	app = QApplication(sys.argv)
 	window = FG_Window()

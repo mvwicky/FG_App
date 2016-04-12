@@ -18,6 +18,25 @@ class FG_Parser(object):
 		self.pitcher_ids = dict()
 		self.batter_ids = dict()
 
+		self.log('Parser created')
+
+	def get_player_type(self, player):
+		if type(player) == str:
+			try:
+				self.batter_ids[player]
+			except KeyError:
+				self.pitcher_ids[player]
+				return 'pit'
+			else:
+				return 'bat'
+		elif type(player) == int:
+			for p in self.batter_ids:
+				if self.batter_ids[p] == player:
+					return 'bat'
+			for p in self.pitcher_ids:
+				if self.pitcher_ids[p] == player:
+					return 'pit'
+
 	def get_id_name_tup(self, player):
 		if type(player) == str:
 			try:

@@ -32,6 +32,8 @@ class FG_Plotter(object):
 					else:
 						self.stat_ind = fields.index(self.stat)
 
+		self.log('Plotter created for: {}'.format(p_tup[1]))
+
 	def per_game(self):
 		dates = []
 		stats = []
