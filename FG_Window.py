@@ -3,9 +3,6 @@ import sys
 import shutil
 import datetime
 
-import requests
-from bs4 import BeautifulSoup
-
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
