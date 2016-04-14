@@ -39,8 +39,6 @@ private:
     Ui::FG_Window *ui;
 
     std::pair<int, int> dim;
-    QString csv_dir;
-    QString graph_dir;
     logger log;
     fg_parser parser;
 };

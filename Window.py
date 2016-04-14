@@ -6,8 +6,9 @@ import datetime
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-from DataManager import DataManager
-from Plotter import Plotter
+import DataManager
+import Plotter
+
 from logger import Logger
 
 try:
@@ -22,7 +23,7 @@ class Window(QMainWindow):
         self.log = Logger('Window')
         self.dim = (850, 500)
 
-        self.data_manager = DataManager()
+        self.data_manager = DataManager.DataManager()
         self.data_manager.get_id_name_tups()
 
         self.init_ui()
@@ -31,7 +32,6 @@ class Window(QMainWindow):
         self.setWindowTitle('FG App')
 
         grid = QGridLayout()
-
         r = grid.rowCount()
 
         pitcher_button = QPushButton('Pitchers')
@@ -91,10 +91,28 @@ class Window(QMainWindow):
                 os.unlink(file_path)
 
     def pop_players(self):
-        pass
+        p_type = self.sender().text()
+        self.player_select.clear()
+        if p_type is None:
+            self.player_select.addItem('Player Type Unselected')
+        elif p_type == 'Pitchers':
+            for p_tup in self.data_manager.id_name_tups['pit']:
+                self.player_select.addItem(p_tup[1])
+        elif p_type == 'Batters':
+            for p_tup in self.data_manager.id_name_tups['bat']:
+                self.player_select.addItem(p_tup[1])
+        self.pop_stats(p_type)
 
-    def pop_stats(self):
-        pass
+    def pop_stats(self, p_type):
+        self.stat_select.clear()
+        if p_type == 'Pitchers':
+            for stat in self.data_manager.get_stats('pit'):
+                self.stat_select.addItem(stat)
+        elif p_type == 'Batters':
+            for stat in self.data_manager.get_stats('bat'):
+                self.stat_select.addItem(stat)
+        else:
+            self.stat_select.addItem('Player Type Unselected')
 
     def make_per_game(self):
         pass

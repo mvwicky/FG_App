@@ -1,7 +1,8 @@
 import os
 import csv
 
-from CSV_Gen import CSV_Gen
+import CSV_Gen
+
 from logger import Logger
 
 
@@ -9,11 +10,17 @@ class DataManager(object):
     def __init__(self):
         self.log = Logger('DataManager')
 
-        self.csv_gen = CSV_Gen()
+        self.csv_gen = CSV_Gen.CSV_Gen()
 
         self.id_name_tups = {'pit': [],
                              'bat': []}
         self.log('Data Manager created')
+        self.csv_gen.init_info_csv()
+
+    def names(self, cat):
+        if cat not in ('pit', 'bat'):
+            self.log('Category is not pitchers or batters')
+            return False
 
     def get_id_name_tups(self, pit=True, bat=True):
         if not (pit or bat):
@@ -27,14 +34,16 @@ class DataManager(object):
                 self.log('{} info file does not exist, fetching'
                          .format('Pitching' if pit else 'Batting'))
                 self.csv_gen.init_info_csv(pit, bat)
-            with open(file_path, 'rt') as file:
+            with open(file_path, 'rt', newline='\n') as file:
                 for row in file:
                     if row.startswith('ID#'):
                         continue
+                    row = row.replace('"', '')
+                    row = row.replace('\r', '').replace('\n', '')
                     fields = row.replace('"', '').split(',')
-                    tups.append((fields[0], fields[1]))
+                    tups.append((int(fields[0]), fields[1]))
                     self.id_name_tups[p_type] = tups
-                    return tups
+                return tups
         elif pit and bat:
             pit_id = self.get_id_name_tups(True, False)
             bat_id = self.get_id_name_tups(False, True)
@@ -81,6 +90,19 @@ class DataManager(object):
             self.log('Determining if player in both lists failed, exiting',
                      ex=True)
         return in_pit and in_bat
+
+    def get_stats(self, p_type):
+        if p_type not in ('pit', 'bat'):
+            self.log('Invalid player type')
+            return 'Could not get stats'
+        else:
+            stat_file = self.csv_gen.game_log_stat_types()[p_type]
+            with open(stat_file, 'rt', newline='\n') as file:
+                for row in file:
+                    row = row.replace('"', '')
+                    row = row.replace('\r', '').replace('\n', '')
+                    fields = row.replace('"', '').split(',')
+                    return fields
 
 
 def main():

@@ -129,6 +129,47 @@ class CSV_Gen(object):
         else:
             return True
 
+    def game_log_stat_types(self, pit=True, bat=True):
+        if not (pit or bat):
+            self.log('Not getting any stat types')
+            return None
+        if not (pit and bat):
+            p_type = 'pit' if pit else 'bat'
+            csv_name = '{}_GameLogStatTypes.csv'.format(p_type)
+            file_path = '{}{}'.format(self.csv_dir, csv_name)
+            if os.path.exists(file_path):
+                self.log('File already generated: {}'.format(csv_name))
+                return file_path
+            with open(self.info_path[p_type], 'rt', newline='\n') as file:
+                for row in file:
+                    if row.startswith('ID#'):
+                        continue
+                    row = row.replace('"', '')
+                    row = row.replace('\r', '').replace('\n', '')
+                    p_tup = (row.split(',')[0], row.split(',')[1])
+                    g_log = self.game_logs(p_tup)
+                    if g_log:
+                        break
+            with open(g_log, 'rt') as game_file:
+                for row in game_file:
+                    row.replace('"', '').replace('\r', '').replace('\n', '')
+                    if row.startswith('Date'):
+                        fields = row.split(',')
+                        if pit:
+                            stats = fields[4:]
+                        if bat:
+                            stats = fields[5:]
+            with open(file_path, 'w', newline='\n') as stat_file:
+                stat_writer = csv.writer(stat_file, delimiter=',')
+                stat_writer.writerow(stats)
+            self.log('Stat types written to: {}'.format(csv_name))
+            return file_path
+        if pit and bat:
+            p_file = self.game_log_stat_types(True, False)
+            b_file = self.game_log_stat_types(False, True)
+            return {'pit': p_file,
+                    'bat': b_file}
+
     def game_logs(self, p_tup, clean=False):
         csv_name = '{}_GameLogs_All.csv'.format(p_tup[0])
         file_path = '{}{}'.format(self.csv_dir, csv_name)
