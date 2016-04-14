@@ -23,6 +23,7 @@ class Window(QMainWindow):
         self.dim = (850, 500)
 
         self.data_manager = DataManager()
+        self.data_manager.get_id_name_tups()
 
         self.init_ui()
 

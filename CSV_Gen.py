@@ -108,7 +108,6 @@ class CSV_Gen(object):
                                 open_a = child.find('</', close_a)
                                 p_name = child[close_a+1:open_a]
                                 ids[p_name] = p_id
-                break
             p_type = 'pit' if pit else 'bat'
             self.log('Done parsing')
             with open(self.info_path[p_type], 'w', newline='\n') as csv_file:

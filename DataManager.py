@@ -14,7 +14,6 @@ class DataManager(object):
         self.id_name_tups = {'pit': [],
                              'bat': []}
         self.log('Data Manager created')
-        self.get_id_name_tups()
 
     def get_id_name_tups(self, pit=True, bat=True):
         if not (pit or bat):
