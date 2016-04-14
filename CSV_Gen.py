@@ -17,7 +17,7 @@ class CSV_Gen(object):
 
         self.info_csv = {'pit': 'PitcherInfo.csv',
                          'bat': 'BatterInfo.csv'}
-        self.csv_dir = '{}\\CSV\\'.format(os.getcwd())
+        self.csv_dir = '{}{}CSV{}'.format(os.getcwd(), os.sep, os.sep)
 
         if not os.path.exists(self.csv_dir):
             self.log('No CSV directory')
@@ -98,7 +98,7 @@ class CSV_Gen(object):
                 for row in soup('tr'):
                     for cell in row('td'):
                         for child in cell.children:
-                            if str(child).find('playerid=') > 0:
+                            if str(child).find('playerid=') != -1:
                                 child = str(child)
                                 pid_loc = child.find('playerid')
                                 equals = child.find('=', pid_loc)

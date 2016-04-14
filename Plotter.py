@@ -17,11 +17,11 @@ class Plotter(object):
         self.stat = stat
         self.year = year
 
-        csv_dir = '{}\\CSV\\'.format(os.getcwd())
+        csv_dir = '{}{}CSV{}'.format(os.getcwd(), os.sep, os.sep)
         csv_name = '{}_GameLogs_All.csv'.format(self.p_tup[0])
         self.csv_path = '{}{}'.format(self.csv_dir, csv_name)
 
-        self.graph_dir = '{}\\Graphs\\'.format(os.getcwd())
+        self.graph_dir = '{}{}Graphs{}'.format(os.getcwd(), os.sep, os.sep)
         self.stat_ind = None
         self.cind = None
         self.dates = []

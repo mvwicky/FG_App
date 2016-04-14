@@ -1,50 +1,64 @@
-from sys import stdout
+import sys
+import os
+
 from datetime import datetime
 
 
 class Logger(object):
-    '''class that logs output to a log file and stdout'''
-    def __init__(self, name, attr=None, ovrw=False):
-        '''Constructor
+    """class that logs output to a log file and stdout"""
+    def __init__(self, name, attr=None, save_dir=None, ovrw=False):
+        """Constructor
            name: the name for the log file
            attr: an optional additional name for the file
+           save_dir: folder name to save in
            ovrw: whether or not to overwrite and existing file
-        '''
+        """
         year = datetime.today().year
         month = datetime.today().month
         day = datetime.today().day
         today = '{}-{}-{}'.format(year, month, day)
 
-        if attr is None:  # use just script name
-            self.logName = '{}_{}.log'.format(name, today)
-        else:  # use script name and type
-            self.logName = '{}_{}_{}.log'.format(name, attr, today)
+        if attr:  # use just script name
+            log_name = '{}_{}_{}.log'.format(name, attr, today)
+        else:  # use script name and supplied attr
+            log_name = '{}_{}.log'.format(name, today)
+
+        if save_dir:
+            self.log_path = os.path.abspath(save_dir)
+            if not os.path.exists(self.log_path):
+                try:
+                    os.makedirs(self.log_path)
+                except:
+                    self.log_path = os.getcwd()
+        else:
+            self.log_path = os.getcwd()
+        self.log_path = os.path.join(self.log_path, log_name)
 
         if ovrw:
-            log = open(self.logName, 'w')
+            log = open(self.log_path, 'w')
             log.close()
 
     def __call__(self, msg, ex=False, exitCode=-1):
-        '''writes to log file and stdout 
-           msg: message to log
-           ex: whether or not to exit
-           exitCode: the exit code to emit, unused if not exiting
-        '''
+        """ writes to log file and stdout
+            msg: message to log
+            ex: whether or not to exit
+            exitCode: the exit code to emit, unused if not exiting
+        """
         msg = str(msg)
-        stdout.write('{}\n'.format(msg))
-        stdout.flush()
+        sys.stdout.write('{}\n'.format(msg))
+        sys.stdout.flush()
         now = datetime.now().strftime("%X")
-        with open(self.logName, 'a') as log:
+        with open(self.log_path, 'a') as log:
             log.write('{} -> {}\n'.format(now, msg))
             log.flush()
         if ex:
             exitMessage = 'Exiting with code: {}'.format(exitCode)
-            stdout.write('{}\n'.format(exitMessage))
-            stdout.flush()
-            with open(self.logName, 'a') as log:
+            sys.stdout.write('{}\n'.format(exitMessage))
+            sys.stdout.flush()
+            with open(self.log_path, 'a') as log:
                 log.write('{} -> {}\n'.format(now, exitMessage))
                 log.flush()
-            exit(exitCode)
+            sys.exit(exitCode)
 
 
 def main():
