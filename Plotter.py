@@ -11,17 +11,17 @@ from logger import Logger
 
 class Plotter(object):
     def __init__(self, p_tup, stat, year=None):
-        self.log = Logger('Plotter')
+        self.log = Logger('Plotter', save_dir='logs')
 
         self.p_tup = p_tup
         self.stat = stat
         self.year = year
 
-        csv_dir = '{}{}CSV{}'.format(os.getcwd(), os.sep, os.sep)
+        csv_dir = os.path.abspath('CSV')
         csv_name = '{}_GameLogs_All.csv'.format(self.p_tup[0])
-        self.csv_path = '{}{}'.format(self.csv_dir, csv_name)
+        self.csv_path = os.path.join(csv_dir, csv_name)
 
-        self.graph_dir = '{}{}Graphs{}'.format(os.getcwd(), os.sep, os.sep)
+        self.graph_dir = os.path.abspath('Graphs')
         self.stat_ind = None
         self.cind = None
         self.dates = []
@@ -75,12 +75,11 @@ class Plotter(object):
         plt.plot(dates, self.stats, 'r.')
         plt.title('{} Per Game: {}'.format(self.p_tup[1], self.stat))
         plt.grid()
-        file_name = '{}{}PerGame_{}.png'.format(self.graph_dir,
-                                                self.p_tup[0],
-                                                self.stat)
+        file_name = '{}PerGame_{}.png'.format(self.p_tup[0], self.stat)
+        file_path = os.path.join(self.graph_dir, file_name)
         self.log('Saving as: {}'.format(file_name))
-        plt.savefig(file_name, bbox_inches='tight')
-        return file_name
+        plt.savefig(file_path, bbox_inches='tight')
+        return file_path
 
     def cum_avg(self):
         pas = []
@@ -121,12 +120,11 @@ class Plotter(object):
         plt.plot(dates, cma, 'r.')
         plt.title('{} Cumulative Average: {}'.format(self.p_tup[1], self.stat))
         plt.grid()
-        file_name = '{}{}CumulativeAverage_{}.png'.format(self.graph_dir,
-                                                          self.p_tup[0],
-                                                          self.stat)
+        file_name = '{}CumulativeAvg_{}.png'.format(self.p_tup[0], self.stat)
+        file_path = os.path.join(self.graph_dir, file_name)
         self.log('Saving as: {}'.format(file_name))
-        plt.savefig(file_name, bbox_inches='tight')
-        return file_name
+        plt.savefig(file_path, bbox_inches='tight')
+        return file_path
 
 
 def main():

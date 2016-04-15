@@ -10,14 +10,14 @@ from logger import Logger
 
 class CSV_Gen(object):
     def __init__(self):
-        self.log = Logger('CSV_Gen')
+        self.log = Logger('CSV_Gen', save_dir='logs')
         self.urls = {'leaders': 'http://fangraphs.com/leaders.aspx',
                      'game_logs': 'http://fangraphs.com/statsd.aspx',
                      'play_logs': 'http://fangraphs.com/statsp.aspx'}
 
         self.info_csv = {'pit': 'PitcherInfo.csv',
                          'bat': 'BatterInfo.csv'}
-        self.csv_dir = '{}{}CSV{}'.format(os.getcwd(), os.sep, os.sep)
+        self.csv_dir = os.path.abspath('CSV')
 
         if not os.path.exists(self.csv_dir):
             self.log('No CSV directory')
@@ -30,10 +30,10 @@ class CSV_Gen(object):
         else:
             self.log('CSV directory: {}'.format(self.csv_dir))
 
-        self.info_path = {'pit': '{}{}'
-                          .format(self.csv_dir, self.info_csv['pit']),
-                          'bat': '{}{}'
-                          .format(self.csv_dir, self.info_csv['bat'])}
+        self.info_path = {'pit': os.path.join(self.csv_dir,
+                                              self.info_csv['pit']),
+                          'bat': os.path.join(self.csv_dir,
+                                              self.info_csv['bat'])}
         self.log('CSV generator created')
 
     def init_info_csv(self, pit=True, bat=True, clean=False):
@@ -122,6 +122,7 @@ class CSV_Gen(object):
                 self.init_info_csv(False, True, clean)
 
     def player_has_game_logs(self, p_id):
+        assert isinstance(p_id, int)
         opts = {'playerid': p_id, 'season': 'all'}
         res = requests.get(self.urls['game_logs'], params=opts)
         if res.url.find('error') != -1:
@@ -136,7 +137,7 @@ class CSV_Gen(object):
         if not (pit and bat):
             p_type = 'pit' if pit else 'bat'
             csv_name = '{}_GameLogStatTypes.csv'.format(p_type)
-            file_path = '{}{}'.format(self.csv_dir, csv_name)
+            file_path = os.path.join(self.csv_dir, csv_name)
             if os.path.exists(file_path):
                 self.log('File already generated: {}'.format(csv_name))
                 return file_path
@@ -171,8 +172,9 @@ class CSV_Gen(object):
                     'bat': b_file}
 
     def game_logs(self, p_tup, clean=False):
+        assert isinstance(p_tup[0], int), isinstance(p_tup[1], str)
         csv_name = '{}_GameLogs_All.csv'.format(p_tup[0])
-        file_path = '{}{}'.format(self.csv_dir, csv_name)
+        file_path = os.path.join(self.csv_dir, csv_name)
         # Make sure that the file does not exist
         if os.path.exists(file_path) and not clean:
             self.log('File already generated: {}'.format(csv_name))
@@ -208,8 +210,9 @@ class CSV_Gen(object):
         return file_path
 
     def play_logs(self, p_tup, clean=False):
+        assert isinstance(p_tup[0], int), isinstance(p_tup[1], str)
         csv_name = '{}_PlayLogsAll.csv'.format(p_tup[0])
-        file_path = '{}{}'.format(self.csv_dir, csv_name)
+        file_path = os.path.join(self.csv_dir, csv_name)
         # Make sure that the file does not exist
         if os.path.exists(file_path) and not clean:
             self.log('File already generated: {}'.format(csv_name))

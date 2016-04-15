@@ -8,7 +8,7 @@ from logger import Logger
 
 class DataManager(object):
     def __init__(self):
-        self.log = Logger('DataManager')
+        self.log = Logger('DataManager', save_dir='logs')
 
         self.csv_gen = CSV_Gen.CSV_Gen()
 
@@ -18,6 +18,7 @@ class DataManager(object):
         self.csv_gen.init_info_csv()
 
     def names(self, cat):
+        assert isinstance(cat, str)
         if cat not in ('pit', 'bat'):
             self.log('Category is not pitchers or batters')
             return False
@@ -51,26 +52,28 @@ class DataManager(object):
                     'bat': bat_id}
 
     def get_player_type(self, player):
-        # modify to get where the player player most
-        if type(player) == str:
+        assert isinstance(player, (str, int))
+        #  modify to get where the player player most
+        if isinstance(player, str):
             if player in self.ids['pit'].keys():
                 return 'pit'
             if player in self.ids['bat'].keys():
                 return 'bat'
-        elif type(player) == int:
+        elif isinstnace(player, int):
             if player in self.ids['pit'].values():
                 return 'pit'
             if player in self.ids['bat'].values():
                 return 'bat'
-        self.log('Getting player type failed, exiting',
-                 ex=True)
+        else:
+            self.log('Getting player type failed, exiting', ex=True)
 
     def get_player_info_tup(self, player):
+        assert isinstance(player, (str, int))
         p_type = self.get_player_type(player)
-        if type(player) == str:
+        if isinstance(player, str):
             p_id = self.ids[p_type][player]
             p_name = player
-        elif type(player) == int:
+        elif isinstance(player, int):
             p_id = player
             p_name = None
             for p in self.ids[p_type]:
@@ -80,10 +83,11 @@ class DataManager(object):
         return (p_id, p_name, self.get_player_type(player))
 
     def get_in_both(self, player):
-        if type(player) == str:
+        assert isinstance(player, (str, int))
+        if isinstance(player, str):
             in_pit = player in self.ids['pit'].keys()
             in_bat = player in self.ids['bat'].keys()
-        elif type(player) == int:
+        elif isinstance(player, int):
             in_pit = player in self.ids['pit'].values()
             in_bat = player in self.ids['bat'].values()
         else:
@@ -92,6 +96,7 @@ class DataManager(object):
         return in_pit and in_bat
 
     def get_stats(self, p_type):
+        assert isinstance(p_type, str)
         if p_type not in ('pit', 'bat'):
             self.log('Invalid player type')
             return 'Could not get stats'

@@ -29,7 +29,7 @@ class Window(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle('FG App')
+        self.setWindowTitle('FG App', save_dir='logs')
 
         grid = QGridLayout()
         r = grid.rowCount()
